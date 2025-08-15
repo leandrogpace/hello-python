@@ -1,1 +1,3 @@
-print("Hello from GitHub Codespaces!")
+name = input("What is your name? ")
+print(f"Hello {name}, welcome to GitHub Codespaces!")
+
