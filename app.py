@@ -8,7 +8,7 @@ ss = st.session_state
 if "low" not in ss:
     ss.low, ss.high = 1, 100
 if "game_id" not in ss:
-    ss.game_id = 0                    # increments on "Play again"
+    ss.game_id = 0                    # increments on "Play again" or difficulty change
 if "secret" not in ss:
     ss.secret = random.randint(ss.low, ss.high)
 if "attempts" not in ss:
@@ -17,6 +17,31 @@ if "message" not in ss:
     ss.message = f"I'm thinking of a number between {ss.low} and {ss.high}."
 
 st.title("🎯 Guess the Number")
+
+# --- Difficulty selector ---
+DIFFICULTIES = {
+    "Easy (1–50)": (1, 50),
+    "Medium (1–100)": (1, 100),
+    "Hard (1–500)": (1, 500),
+}
+
+def set_difficulty():
+    low, high = DIFFICULTIES[ss.difficulty]
+    ss.low, ss.high = low, high
+    ss.game_id += 1                    # new input widget instance
+    ss.secret = random.randint(low, high)
+    ss.attempts = 0
+    ss.message = f"New game! I'm thinking of a number between {low} and {high}."
+    st.rerun()
+
+st.selectbox(
+    "Difficulty",
+    list(DIFFICULTIES.keys()),
+    index=1,                           # default to Medium
+    key="difficulty",
+    on_change=set_difficulty,
+)
+
 st.write(ss.message)
 
 # --- Callback: runs when the input changes (press Enter) ---
@@ -36,7 +61,7 @@ def check_guess():
             f"You took {ss.attempts} tries."
         )
 
-# Number input with a PER-GAME key so it resets after Play again
+# Number input with a PER-GAME key so it resets after Play again/difficulty change
 current_key = f"guess_{ss.game_id}"
 st.number_input(
     "Your guess:",
@@ -49,10 +74,11 @@ st.number_input(
 
 # --- Reset game ---
 if st.button("Play again"):
-    ss.game_id += 1                    # force a new input widget instance
+    ss.game_id += 1
     ss.secret = random.randint(ss.low, ss.high)
     ss.attempts = 0
     ss.message = f"New game! I'm thinking of a number between {ss.low} and {ss.high}."
-    st.rerun()                         # refresh the UI immediately
+    st.rerun()
 
 st.caption("Built with Streamlit in GitHub Codespaces")
+
