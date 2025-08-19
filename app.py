@@ -27,12 +27,18 @@ DIFFICULTIES = {
 
 def set_difficulty():
     low, high = DIFFICULTIES[ss.difficulty]
+
+    # Clear the previous guess for the old input widget (optional but tidy)
+    prev_key = f"guess_{ss.game_id}"
+    ss.pop(prev_key, None)
+
+    # Update range and bump game_id to force a fresh number_input instance
     ss.low, ss.high = low, high
-    ss.game_id += 1                    # new input widget instance
+    ss.game_id += 1
     ss.secret = random.randint(low, high)
     ss.attempts = 0
     ss.message = f"New game! I'm thinking of a number between {low} and {high}."
-    st.rerun()
+    # NOTE: No st.rerun() here; selectbox change already triggers a rerun.
 
 st.selectbox(
     "Difficulty",
@@ -58,7 +64,7 @@ def check_guess():
     else:
         ss.message = (
             f"✅ Correct! The number was {ss.secret}. "
-            f"You took {ss.attempts} tries."
+            f"You took {ss.attempts} {'try' if ss.attempts == 1 else 'tries'}."
         )
 
 # Number input with a PER-GAME key so it resets after Play again/difficulty change
@@ -78,7 +84,6 @@ if st.button("Play again"):
     ss.secret = random.randint(ss.low, ss.high)
     ss.attempts = 0
     ss.message = f"New game! I'm thinking of a number between {ss.low} and {ss.high}."
-    st.rerun()
+    # No st.rerun() needed; button interaction already reruns the script.
 
 st.caption("Built with Streamlit in GitHub Codespaces")
-
